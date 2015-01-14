@@ -9,14 +9,14 @@ import net.lomeli.achieveson.Logger;
 import net.lomeli.achieveson.api.ConditionHandler;
 import net.lomeli.achieveson.conditions.ConditionManager;
 
-public class SubAchievement {
+public class AchievementParser {
     private String pageID, id, type, parentID;
     private ItemStack item;
     private String[] params;
     private int xPos, yPos;
     private Achievement achievement;
 
-    public SubAchievement(String pageID, String id, int x, int y, String type, String item, String[] params) {
+    public AchievementParser(String pageID, String id, int x, int y, String type, String item, String[] params) {
         this.pageID = pageID;
         this.id = id;
         this.xPos = x;
@@ -32,7 +32,7 @@ public class SubAchievement {
         this.params = params;
     }
 
-    public SubAchievement(String pageID, String id, int x, int y, String type, String item, String[] params, String parentID) {
+    public AchievementParser(String pageID, String id, int x, int y, String type, String item, String[] params, String parentID) {
         this(pageID, id, x, y, type, item, params);
         this.parentID = parentID;
     }
@@ -41,12 +41,12 @@ public class SubAchievement {
         return this.id;
     }
 
-    public void loadAchievement(AchievementJSON page) {
+    public void loadAchievement(AchievementJSONFile page) {
         if (item != null) {
             Achievement parentAchievement = null;
             if (parentID != null && !parentID.isEmpty()) {
-                if (page != null && !page.subAchievementList.isEmpty()) {
-                    for (SubAchievement sub : page.subAchievementList) {
+                if (page != null && !page.achievementParserList.isEmpty()) {
+                    for (AchievementParser sub : page.achievementParserList) {
                         if (sub != null && sub.getId().equals(parentID)) {
                             parentAchievement = sub.getAchievement();
                             break;

@@ -25,15 +25,15 @@ import cpw.mods.fml.relauncher.Side;
 
 import net.lomeli.achieveson.Logger;
 
-public class AchievementJSON {
-    public static HashMap<String, AchievementJSON> jsonList = new HashMap<String, AchievementJSON>();
+public class AchievementJSONFile {
+    public static HashMap<String, AchievementJSONFile> jsonList = new HashMap<String, AchievementJSONFile>();
     private File jsonFile;
     private String pageTitle, langZip;
-    public List<SubAchievement> subAchievementList;
+    public List<AchievementParser> achievementParserList;
 
-    public AchievementJSON(File file) {
+    public AchievementJSONFile(File file) {
         jsonFile = file;
-        subAchievementList = new ArrayList<SubAchievement>();
+        achievementParserList = new ArrayList<AchievementParser>();
     }
 
     public void loadAchievements() {
@@ -48,7 +48,7 @@ public class AchievementJSON {
             }
             jsonList.put(pageTitle.replace(" ", "-"), this);
             List<Achievement> achievements = new ArrayList<Achievement>();
-            for (SubAchievement subs : subAchievementList) {
+            for (AchievementParser subs : achievementParserList) {
                 if (subs != null) {
                     subs.loadAchievement(this);
                     achievements.add(subs.getAchievement());
@@ -83,28 +83,29 @@ public class AchievementJSON {
                                 Logger.logWarning("Achievement with same id already registered, ignoring...");
                                 continue;
                             }
-                            String id = entry.getKey();
-                            names.add(id);
-                            JsonObject subAchievement = entry.getValue().getAsJsonObject();
-                            if (subAchievement != null) {
-                                String type = subAchievement.get("conditionType").getAsString();
-                                String param = subAchievement.get("params").getAsString();
-                                String item = subAchievement.get("itemIcon").getAsString();
-                                int x = subAchievement.get("xPos").getAsInt();
-                                int y = subAchievement.get("yPos").getAsInt();
-                                String[] params = param.split(" ");
-                                SubAchievement sub;
-                                if (subAchievement.has("parentAchievement"))
-                                    sub = new SubAchievement(pageid, id, x, y, type, item, params, subAchievement.get("parentAchievement").getAsString());
-                                else
-                                    sub = new SubAchievement(pageid, id, x, y, type, item, params);
+                            if (entry.getValue().isJsonObject()) {
+                                String id = entry.getKey();
+                                names.add(id);
+                                JsonObject subAchievement = entry.getValue().getAsJsonObject();
+                                if (subAchievement != null) {
+                                    String type = subAchievement.get("conditionType").getAsString();
+                                    String param = subAchievement.get("params").getAsString();
+                                    String item = subAchievement.get("itemIcon").getAsString();
+                                    int x = subAchievement.get("xPos").getAsInt();
+                                    int y = subAchievement.get("yPos").getAsInt();
+                                    String[] params = param.split(" ");
+                                    AchievementParser sub;
+                                    if (subAchievement.has("parentAchievement"))
+                                        sub = new AchievementParser(pageid, id, x, y, type, item, params, subAchievement.get("parentAchievement").getAsString());
+                                    else
+                                        sub = new AchievementParser(pageid, id, x, y, type, item, params);
 
-                                if (sub != null)
-                                    subAchievementList.add(sub);
+                                    if (sub != null)
+                                        achievementParserList.add(sub);
+                                }
                             }
                         }
                     }
-
                     return true;
                 }
             } catch (Exception e) {

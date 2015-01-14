@@ -8,10 +8,10 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-import net.lomeli.achieveson.achievement.AchievementJSON;
+import net.lomeli.achieveson.achievement.AchievementJSONFile;
 import net.lomeli.achieveson.api.ConditionHandler;
 import net.lomeli.achieveson.conditions.ConditionItemPickup;
-import net.lomeli.achieveson.conditions.ConditionManager;
+import net.lomeli.achieveson.conditions.ConditionKillEntity;
 
 @Mod(modid = AchieveSON.MOD_ID, name = AchieveSON.MOD_NAME, version = AchieveSON.VERSION)
 public class AchieveSON {
@@ -24,6 +24,7 @@ public class AchieveSON {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         ConditionHandler.registerHandler(ConditionItemPickup.class);
+        ConditionHandler.registerHandler(ConditionKillEntity.class);
 
         achievementFolder = new File(event.getModConfigurationDirectory(), "achievements");
         if (!achievementFolder.exists()) {
@@ -39,7 +40,7 @@ public class AchieveSON {
             for (File file : files) {
                 if (FilenameUtils.getExtension(file.getAbsolutePath()).equalsIgnoreCase("json")) {
                     Logger.logInfo("Parsing " + file.getName() + " for achievements...");
-                    new AchievementJSON(file).loadAchievements();
+                    new AchievementJSONFile(file).loadAchievements();
                 }
             }
         }
