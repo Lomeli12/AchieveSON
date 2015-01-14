@@ -9,6 +9,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 import net.lomeli.achieveson.achievement.AchievementJSON;
+import net.lomeli.achieveson.api.ConditionHandler;
 import net.lomeli.achieveson.conditions.ConditionItemPickup;
 import net.lomeli.achieveson.conditions.ConditionManager;
 
@@ -22,7 +23,7 @@ public class AchieveSON {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        ConditionManager.getInstance().registerAchievements(ConditionItemPickup.class);
+        ConditionHandler.registerHandler(ConditionItemPickup.class);
 
         achievementFolder = new File(event.getModConfigurationDirectory(), "achievements");
         if (!achievementFolder.exists()) {

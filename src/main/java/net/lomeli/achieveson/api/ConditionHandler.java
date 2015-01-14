@@ -16,7 +16,7 @@ public abstract class ConditionHandler {
         if (conditionManager == null) {
             try {
                 Class cl = Class.forName("net.lomeli.achieveson.conditions.ConditionManager");
-                conditionManager = (IConditionManager) cl.getField("instance").get(clazz);
+                conditionManager = (IConditionManager) cl.getMethod("getInstance").invoke(null);
             } catch (Exception e) {
                 return;
             }

@@ -1,6 +1,7 @@
 package net.lomeli.achieveson.conditions;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -13,11 +14,10 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 
-import net.lomeli.achieveson.Logger;
 import net.lomeli.achieveson.api.ConditionHandler;
 
 public class ConditionItemPickup extends ConditionHandler {
-    private static HashMap<ItemStack, Achievement> registeredAchievements;
+    private HashMap<ItemStack, Achievement> registeredAchievements;
 
     public ConditionItemPickup() {
         registeredAchievements = new HashMap<ItemStack, Achievement>();
@@ -28,14 +28,23 @@ public class ConditionItemPickup extends ConditionHandler {
         if (!event.item.worldObj.isRemote && event.entityPlayer != null) {
             ItemStack stack = event.item.getEntityItem();
             stack.stackSize = 1;
-            Achievement achievement = registeredAchievements.get(stack);
+            Achievement achievement = null;
+            for (Map.Entry<ItemStack, Achievement> entry : registeredAchievements.entrySet()) {
+                if (entry != null && doStacksMatch(stack, entry.getKey())) {
+                    achievement = entry.getValue();
+                    break;
+                }
+            }
             if (achievement != null) {
                 EntityPlayerMP player = (EntityPlayerMP) event.entityPlayer;
                 if (!player.func_147099_x().hasAchievementUnlocked(achievement) && player.func_147099_x().canUnlockAchievement(achievement))
                     player.addStat(achievement, 1);
             }
-            Logger.logInfo("ConditionItemPickup: Picked up " + stack.getDisplayName());
         }
+    }
+
+    private boolean doStacksMatch(ItemStack a, ItemStack b) {
+        return a != null && b != null && a.getItem() != null && b.getItem() != null && ((a.getItem() == b.getItem()) && (a.getItemDamage() == b.getItemDamage()));
     }
 
     @Override
