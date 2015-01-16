@@ -10,8 +10,9 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 import net.lomeli.achieveson.achievement.AchievementJSONFile;
 import net.lomeli.achieveson.api.ConditionHandler;
-import net.lomeli.achieveson.conditions.ConditionItemPickup;
-import net.lomeli.achieveson.conditions.ConditionKillEntity;
+import net.lomeli.achieveson.conditions.*;
+import net.lomeli.achieveson.lib.Logger;
+import net.lomeli.achieveson.network.PacketHandler;
 
 @Mod(modid = AchieveSON.MOD_ID, name = AchieveSON.MOD_NAME, version = AchieveSON.VERSION)
 public class AchieveSON {
@@ -23,24 +24,33 @@ public class AchieveSON {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        Logger.logInfo("Registering base condition handlers...");
         ConditionHandler.registerHandler(ConditionItemPickup.class);
         ConditionHandler.registerHandler(ConditionKillEntity.class);
+        ConditionHandler.registerHandler(ConditionBlock.class);
+        ConditionHandler.registerHandler(ConditionOpenGui.class);
+        ConditionHandler.registerHandler(ConditionCraft.class);
 
         achievementFolder = new File(event.getModConfigurationDirectory(), "achievements");
         if (!achievementFolder.exists()) {
-            Logger.logWarning("Achievement folder does not exists!");
+            Logger.logWarning("Achievement folder does not exists! Creating...");
             achievementFolder.mkdir();
         }
+
+        Logger.logInfo("Initializing basic packet handler...");
+        PacketHandler.init();
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         if (achievementFolder.isDirectory()) {
+            Logger.logInfo("Reading json files...");
             File[] files = achievementFolder.listFiles();
             for (File file : files) {
                 if (FilenameUtils.getExtension(file.getAbsolutePath()).equalsIgnoreCase("json")) {
                     Logger.logInfo("Parsing " + file.getName() + " for achievements...");
                     new AchievementJSONFile(file).loadAchievements();
+                    Logger.logInfo("-------------------------------------");
                 }
             }
         }

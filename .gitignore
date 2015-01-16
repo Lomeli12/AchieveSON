@@ -1,6 +1,7 @@
 *.class
 build
 .gradle
+build.sh
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/

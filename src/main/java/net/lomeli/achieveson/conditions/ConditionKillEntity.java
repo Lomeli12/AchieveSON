@@ -2,8 +2,6 @@ package net.lomeli.achieveson.conditions;
 
 import java.util.HashMap;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
@@ -15,7 +13,6 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
-import net.lomeli.achieveson.Logger;
 import net.lomeli.achieveson.api.ConditionHandler;
 
 public class ConditionKillEntity extends ConditionHandler {
@@ -28,8 +25,7 @@ public class ConditionKillEntity extends ConditionHandler {
     @SubscribeEvent
     public void entityDeathEvent(LivingDeathEvent event) {
         if (event.entityLiving != null && !event.entityLiving.worldObj.isRemote && event.source != null) {
-            if (event.source.getSourceOfDamage() != null && damageFromPlayer(event.source)) {
-                Logger.logInfo("Entity killed by player!");
+            if (event.source.getSourceOfDamage() != null && damageFromPlayer(event.source) && !registeredAchievements.isEmpty()) {
                 Achievement achievement = registeredAchievements.get(event.entityLiving.getClass().getName());
                 if (achievement != null) {
                     EntityPlayerMP player = null;
@@ -71,5 +67,10 @@ public class ConditionKillEntity extends ConditionHandler {
     @Override
     public String conditionID() {
         return "killentity";
+    }
+
+    @Override
+    public boolean isClientSide() {
+        return false;
     }
 }

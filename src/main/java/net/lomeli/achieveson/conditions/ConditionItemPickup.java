@@ -15,6 +15,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 import net.lomeli.achieveson.api.ConditionHandler;
+import net.lomeli.achieveson.lib.ParsingUtil;
 
 public class ConditionItemPickup extends ConditionHandler {
     private HashMap<ItemStack, Achievement> registeredAchievements;
@@ -29,10 +30,12 @@ public class ConditionItemPickup extends ConditionHandler {
             ItemStack stack = event.item.getEntityItem();
             stack.stackSize = 1;
             Achievement achievement = null;
-            for (Map.Entry<ItemStack, Achievement> entry : registeredAchievements.entrySet()) {
-                if (entry != null && doStacksMatch(stack, entry.getKey())) {
-                    achievement = entry.getValue();
-                    break;
+            if (registeredAchievements != null && !registeredAchievements.isEmpty()) {
+                for (Map.Entry<ItemStack, Achievement> entry : registeredAchievements.entrySet()) {
+                    if (entry != null && ParsingUtil.doStacksMatch(stack, entry.getKey())) {
+                        achievement = entry.getValue();
+                        break;
+                    }
                 }
             }
             if (achievement != null) {
@@ -41,10 +44,6 @@ public class ConditionItemPickup extends ConditionHandler {
                     player.addStat(achievement, 1);
             }
         }
-    }
-
-    private boolean doStacksMatch(ItemStack a, ItemStack b) {
-        return a != null && b != null && a.getItem() != null && b.getItem() != null && ((a.getItem() == b.getItem()) && (a.getItemDamage() == b.getItemDamage()));
     }
 
     @Override
@@ -56,20 +55,11 @@ public class ConditionItemPickup extends ConditionHandler {
     public void registerAchievementCondition(Achievement achievement, String... args) {
         if (achievement != null && args != null && (args.length == 1 || args.length == 2)) {
             String name = args[0];
-            if (name.split(":").length == 2) {
-                String modID = name.split(":")[0];
-                String itemName = name.split(":")[1];
-                ItemStack stack;
-                Item item = GameRegistry.findItem(modID, itemName);
-                if (item != null) {
-                    if (args.length == 2) {
-                        int meta = Integer.parseInt(args[1]);
-                        stack = new ItemStack(item, 1, meta);
-                    } else
-                        stack = new ItemStack(item);
-                    if (stack != null)
+            String[] array = name.split(":");
+            if (array.length == 2 || array.length == 3) {
+                ItemStack stack = ParsingUtil.getStackFromString(name);
+                if (stack != null)
                         registeredAchievements.put(stack, achievement);
-                }
             }
         }
     }
@@ -77,5 +67,10 @@ public class ConditionItemPickup extends ConditionHandler {
     @Override
     public String conditionID() {
         return "pickupitem";
+    }
+
+    @Override
+    public boolean isClientSide() {
+        return false;
     }
 }

@@ -1,8 +1,10 @@
-package net.lomeli.achieveson;
+package net.lomeli.achieveson.lib;
 
 import org.apache.logging.log4j.Level;
 
 import cpw.mods.fml.common.FMLLog;
+
+import net.lomeli.achieveson.AchieveSON;
 
 public class Logger {
 

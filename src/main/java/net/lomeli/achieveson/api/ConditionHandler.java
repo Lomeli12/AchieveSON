@@ -3,7 +3,6 @@ package net.lomeli.achieveson.api;
 import net.minecraft.stats.Achievement;
 
 public abstract class ConditionHandler {
-    public static IConditionManager conditionManager;
 
     public abstract void registerAchievementCondition(Achievement achievement, String... args);
 
@@ -11,6 +10,11 @@ public abstract class ConditionHandler {
     public abstract void registerEvent();
 
     public abstract String conditionID();
+
+    /** Set to true if you're using a client side event. Use {@link net.lomeli.achieveson.api.IConditionManager#sendAchievementPacket} to give the player their achievement. */
+    public abstract boolean isClientSide();
+
+    public static IConditionManager conditionManager;
 
     public static final void registerHandler(Class<? extends ConditionHandler> clazz) {
         if (conditionManager == null) {

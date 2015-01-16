@@ -5,9 +5,10 @@ import net.minecraft.stats.Achievement;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 
-import net.lomeli.achieveson.Logger;
+import net.lomeli.achieveson.lib.Logger;
 import net.lomeli.achieveson.api.ConditionHandler;
 import net.lomeli.achieveson.conditions.ConditionManager;
+import net.lomeli.achieveson.lib.ParsingUtil;
 
 public class AchievementParser {
     private String pageID, id, type, parentID;
@@ -22,13 +23,7 @@ public class AchievementParser {
         this.xPos = x;
         this.yPos = y;
         this.type = type;
-        String[] itemInfo = item.split(":");
-        if (itemInfo != null && (itemInfo.length == 2 || itemInfo.length == 3)) {
-            ItemStack stack = new ItemStack(GameRegistry.findItem(itemInfo[0], itemInfo[1]));
-            if (itemInfo.length == 3)
-                stack.setItemDamage(Integer.parseInt(itemInfo[2]));
-            this.item = stack;
-        }
+        this.item = ParsingUtil.getStackFromString(item);
         this.params = params;
     }
 

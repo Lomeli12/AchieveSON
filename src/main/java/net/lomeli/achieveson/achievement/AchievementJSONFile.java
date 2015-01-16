@@ -23,7 +23,7 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
 
-import net.lomeli.achieveson.Logger;
+import net.lomeli.achieveson.lib.Logger;
 
 public class AchievementJSONFile {
     public static HashMap<String, AchievementJSONFile> jsonList = new HashMap<String, AchievementJSONFile>();
@@ -74,6 +74,8 @@ public class AchievementJSONFile {
                     pageTitle = jsonObject.get("pageTitle").getAsString();
                     if (jsonObject.has("langZip"))
                         langZip = jsonObject.get("langZip").getAsString();
+                    else
+                        Logger.logWarning("Achievement page does not have localization zip! You can still use it, but everything will show up with unlocalized names! Use tag \"langZip\" to set localization zip file.");
                     String pageid = pageTitle.replace(" ", "-");
                     if (jsonObject.has("achievements") && jsonObject.get("achievements").isJsonObject()) {
                         JsonObject achievements = jsonObject.getAsJsonObject("achievements");
