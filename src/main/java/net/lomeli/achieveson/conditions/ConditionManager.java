@@ -7,9 +7,9 @@ import net.minecraft.stats.Achievement;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 
-import net.lomeli.achieveson.lib.Logger;
 import net.lomeli.achieveson.api.ConditionHandler;
 import net.lomeli.achieveson.api.IConditionManager;
+import net.lomeli.achieveson.lib.Logger;
 import net.lomeli.achieveson.network.MessageUnlockAchievement;
 import net.lomeli.achieveson.network.PacketHandler;
 

@@ -30,6 +30,7 @@ public class AchieveSON {
         ConditionHandler.registerHandler(ConditionBlock.class);
         ConditionHandler.registerHandler(ConditionOpenGui.class);
         ConditionHandler.registerHandler(ConditionCraft.class);
+        ConditionHandler.registerHandler(ConditionPlayer.class);
 
         achievementFolder = new File(event.getModConfigurationDirectory(), "achievements");
         if (!achievementFolder.exists()) {

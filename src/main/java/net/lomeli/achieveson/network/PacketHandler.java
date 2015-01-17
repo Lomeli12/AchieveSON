@@ -8,6 +8,7 @@ import net.lomeli.achieveson.AchieveSON;
 
 public class PacketHandler {
     public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(AchieveSON.MOD_ID.toLowerCase());
+
     public static void init() {
         INSTANCE.registerMessage(MessageUnlockAchievement.class, MessageUnlockAchievement.class, 0, Side.SERVER);
     }

@@ -3,11 +3,9 @@ package net.lomeli.achieveson.achievement;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.Achievement;
 
-import cpw.mods.fml.common.registry.GameRegistry;
-
-import net.lomeli.achieveson.lib.Logger;
 import net.lomeli.achieveson.api.ConditionHandler;
 import net.lomeli.achieveson.conditions.ConditionManager;
+import net.lomeli.achieveson.lib.Logger;
 import net.lomeli.achieveson.lib.ParsingUtil;
 
 public class AchievementParser {

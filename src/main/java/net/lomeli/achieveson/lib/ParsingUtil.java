@@ -23,9 +23,9 @@ public class ParsingUtil {
             String itemString = array_1[0];
             String[] array_2 = itemString.split(":");
             if (array_1.length == 2)
-                return getStackFromString(itemString, Integer.parseInt(array_1[1]));
+                return getStackFromString(itemString, parseInt(array_1[1]));
             if (array_2 != null && (array_2.length == 2 || array_2.length == 3))
-                return array_2.length == 3 ? getStackFromString(itemString, Integer.parseInt(array_2[2])) : getStackFromString(itemString, 0);
+                return array_2.length == 3 ? getStackFromString(itemString, parseInt(array_2[2])) : getStackFromString(itemString, 0);
         }
         return null;
     }
@@ -46,5 +46,14 @@ public class ParsingUtil {
 
     public static boolean doStacksMatch(ItemStack a, ItemStack b) {
         return a != null && b != null && a.getItem() != null && b.getItem() != null && ((a.getItem() == b.getItem()) && (a.getItemDamage() == b.getItemDamage()));
+    }
+
+    public static int parseInt(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 }

@@ -52,7 +52,7 @@ public class MessageUnlockAchievement implements IMessage, IMessageHandler<Messa
         Achievement achieve = message.achievement;
         if (achieve == null) return null;
         UUID originUUID = new UUID(message.mostSigUUID, message.leastSigUUID);
-        EntityPlayerMP playerMP = (EntityPlayerMP)FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(message.dimID).func_152378_a(originUUID);
+        EntityPlayerMP playerMP = (EntityPlayerMP) FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(message.dimID).func_152378_a(originUUID);
         if (playerMP != null) {
             if (!playerMP.func_147099_x().hasAchievementUnlocked(achieve) && playerMP.func_147099_x().canUnlockAchievement(achieve))
                 playerMP.addStat(achieve, 1);

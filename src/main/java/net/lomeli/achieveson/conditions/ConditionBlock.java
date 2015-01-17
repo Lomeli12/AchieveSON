@@ -15,6 +15,7 @@ import net.minecraftforge.event.world.BlockEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import net.lomeli.achieveson.api.ConditionHandler;
+import net.lomeli.achieveson.lib.NBTUtil;
 import net.lomeli.achieveson.lib.ParsingUtil;
 
 public class ConditionBlock extends ConditionHandler {
@@ -30,11 +31,9 @@ public class ConditionBlock extends ConditionHandler {
     public void blockBreakEvent(BlockEvent.BreakEvent event) {
         if (event.block != null && !event.world.isRemote && event.getPlayer() != null) {
             EntityPlayerMP player = (EntityPlayerMP) event.getPlayer();
-            Achievement achievement = getAchievementForBlock(breakList, event.block, event.blockMetadata);
-            if (player != null && achievement != null) {
-                if (!player.func_147099_x().hasAchievementUnlocked(achievement) && player.func_147099_x().canUnlockAchievement(achievement))
-                    player.addStat(achievement, 1);
-            }
+            BlockInfo info = getBlockInfo(breakList, event.block, event.blockMetadata);
+            if (player != null && info != null)
+                playerUnlockedAchieve(player, info);
         }
     }
 
@@ -42,11 +41,9 @@ public class ConditionBlock extends ConditionHandler {
     public void blockPlaceEvent(BlockEvent.PlaceEvent event) {
         if (event.block != null && !event.world.isRemote && event.player != null) {
             EntityPlayerMP player = (EntityPlayerMP) event.player;
-            Achievement achievement = getAchievementForBlock(placeList, event.block, event.blockMetadata);
-            if (player != null && achievement != null) {
-                if (!player.func_147099_x().hasAchievementUnlocked(achievement) && player.func_147099_x().canUnlockAchievement(achievement))
-                    player.addStat(achievement, 1);
-            }
+            BlockInfo info = getBlockInfo(placeList, event.block, event.blockMetadata);
+            if (player != null && info != null)
+                playerUnlockedAchieve(player, info);
         }
     }
 
@@ -56,36 +53,57 @@ public class ConditionBlock extends ConditionHandler {
             EntityPlayerMP player = (EntityPlayerMP) event.entityPlayer;
             Block block = event.world.getBlock(event.x, event.y, event.z);
             int meta = event.world.getBlockMetadata(event.x, event.y, event.z);
-            Achievement achievement = getAchievementForBlock(rightClickList, block, meta);
-            if (player != null && achievement != null) {
-                if (!player.func_147099_x().hasAchievementUnlocked(achievement) && player.func_147099_x().canUnlockAchievement(achievement))
-                    player.addStat(achievement, 1);
+            BlockInfo info = getBlockInfo(rightClickList, block, meta);
+            if (player != null && info != null)
+                playerUnlockedAchieve(player, info);
+        }
+    }
+
+    public void playerUnlockedAchieve(EntityPlayerMP player, BlockInfo info) {
+        if (info != null && info.block != null && info.achievement != null && player != null && !player.func_147099_x().hasAchievementUnlocked(info.getAchievement()) && player.func_147099_x().canUnlockAchievement(info.getAchievement())) {
+            int count = 1 + NBTUtil.getInt(player, info.achievement.statId);
+            NBTUtil.setInt(player, info.achievement.statId, count);
+            if (count >= info.getCount()) {
+                player.addStat(info.getAchievement(), 1);
+                NBTUtil.removeTag(player, info.achievement.statId);
             }
         }
     }
 
-    public Achievement getAchievementForBlock(List<BlockInfo> list, Block block, int meta) {
+    public BlockInfo getBlockInfo(List<BlockInfo> list, Block block, int meta) {
         if (list != null && !list.isEmpty() && block != null) {
             for (BlockInfo info : list)
-                if (info != null && info.match(block, meta)) return info.getAchievement();
+                if (info != null && info.match(block, meta)) return info;
         }
         return null;
     }
 
     @Override
     public void registerAchievementCondition(Achievement achievement, String... args) {
-        if (achievement != null && args != null && (args.length == 2 || args.length == 3)) {
+        if (achievement != null && args != null && (args.length == 2 || args.length == 3 || args.length == 4)) {
             String type = args[0];
-            ItemStack item = args.length == 2 ? ParsingUtil.getStackFromString(args[1]) : args.length == 3 ? ParsingUtil.getStackFromString(args[1], Integer.parseInt(args[2])) : null;
+            String itemName = args[1];
+            int meta = 0, count = 1;
+            if (args.length > 2) {
+                String ex0 = args[2];
+                String ex1 = args.length == 4 ? args[3] : null;
+                if (ex0.startsWith("count="))
+                    count = ParsingUtil.parseInt(ex0.substring(6));
+                else
+                    meta = ParsingUtil.parseInt(ex0);
+                if (ex1 != null && ex1.startsWith("count="))
+                    count = ParsingUtil.parseInt(ex1.substring(6));
+            }
+            ItemStack item = ParsingUtil.getStackFromString(itemName, meta);
             if (item == null) return;
             Block block = Block.getBlockFromItem(item.getItem());
             if (block == null) return;
             if (type.equalsIgnoreCase("place"))
-                placeList.add(new BlockInfo(achievement, block, item.getItemDamage()));
+                placeList.add(new BlockInfo(achievement, block, item.getItemDamage(), count));
             else if (type.equalsIgnoreCase("break"))
-                breakList.add(new BlockInfo(achievement, block, item.getItemDamage()));
+                breakList.add(new BlockInfo(achievement, block, item.getItemDamage(), count));
             else if (type.equalsIgnoreCase("interact"))
-                rightClickList.add(new BlockInfo(achievement, block, item.getItemDamage()));
+                rightClickList.add(new BlockInfo(achievement, block, item.getItemDamage(), count));
         }
     }
 
@@ -106,13 +124,14 @@ public class ConditionBlock extends ConditionHandler {
 
     private static class BlockInfo {
         private Block block;
-        private int metadata;
+        private int metadata, count;
         private Achievement achievement;
 
-        public BlockInfo(Achievement achievement, Block block, int meta) {
+        public BlockInfo(Achievement achievement, Block block, int meta, int count) {
             this.achievement = achievement;
             this.block = block;
             this.metadata = meta;
+            this.count = count;
         }
 
         public boolean match(Block bk, int meta) {
@@ -121,6 +140,10 @@ public class ConditionBlock extends ConditionHandler {
 
         public Achievement getAchievement() {
             return this.achievement;
+        }
+
+        public int getCount() {
+            return count;
         }
     }
 }
