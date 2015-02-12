@@ -32,6 +32,7 @@ public class ConditionManager implements IConditionManager {
         try {
             Logger.logInfo("Registering " + clazz.getName() + " as condition handler...");
             ConditionHandler conditionHandler = clazz.newInstance();
+            
             if (conditionHandler.isClientSide()) {
                 if (FMLCommonHandler.instance().getEffectiveSide().isClient())
                     conditionHandler.registerEvent();

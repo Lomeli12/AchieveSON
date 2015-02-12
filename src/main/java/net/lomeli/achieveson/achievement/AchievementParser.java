@@ -1,5 +1,6 @@
 package net.lomeli.achieveson.achievement;
 
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.Achievement;
 
@@ -22,6 +23,8 @@ public class AchievementParser {
         this.yPos = y;
         this.type = type;
         this.item = ParsingUtil.getStackFromString(item);
+        if (this.item == null)
+            Logger.logInfo("Could not find item " + item + " for achievement " + id);
         this.params = params;
     }
 
@@ -35,23 +38,21 @@ public class AchievementParser {
     }
 
     public void loadAchievement(AchievementJSONFile page) {
-        if (item != null) {
-            Achievement parentAchievement = null;
-            if (parentID != null && !parentID.isEmpty()) {
-                if (page != null && !page.achievementParserList.isEmpty()) {
-                    for (AchievementParser sub : page.achievementParserList) {
-                        if (sub != null && sub.getId().equals(parentID)) {
-                            parentAchievement = sub.getAchievement();
-                            break;
-                        }
+        Achievement parentAchievement = null;
+        if (parentID != null && !parentID.isEmpty()) {
+            if (page != null && !page.achievementParserList.isEmpty()) {
+                for (AchievementParser sub : page.achievementParserList) {
+                    if (sub != null && sub.getId().equals(parentID)) {
+                        parentAchievement = sub.getAchievement();
+                        break;
                     }
-                    if (parentAchievement == null)
-                        Logger.logWarning("Parent for " + id + " achievement given, but not found! This can happen if no achievements have this id exist or the parent is registered after the child.");
                 }
+                if (parentAchievement == null)
+                    Logger.logWarning("Parent for " + id + " achievement given, but not found! This can happen if no achievements have this id exist or the parent is registered after the child.");
             }
-            Logger.logInfo("Creating achievement " + id + " for page " + pageID);
-            achievement = new Achievement("achievement." + pageID + "." + id, pageID + "." + id, xPos, yPos, item, parentAchievement).registerStat();
         }
+        Logger.logInfo("Creating achievement " + id + " for page " + pageID);
+        achievement = (Achievement) new Achievement("achievement." + pageID + "." + id, pageID + "." + id, xPos, yPos, item != null ? item : new ItemStack(Blocks.stone), parentAchievement).registerStat();
         if (achievement != null && type != null && !type.isEmpty()) {
             Logger.logInfo("Assigning achievement " + id + " to condition handler.");
             ConditionHandler condition = ConditionManager.getInstance().getConditionHandler(type);

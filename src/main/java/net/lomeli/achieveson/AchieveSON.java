@@ -4,6 +4,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -28,7 +29,8 @@ public class AchieveSON {
         ConditionHandler.registerHandler(ConditionItemPickup.class);
         ConditionHandler.registerHandler(ConditionKillEntity.class);
         ConditionHandler.registerHandler(ConditionBlock.class);
-        ConditionHandler.registerHandler(ConditionOpenGui.class);
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+            ConditionHandler.registerHandler(ConditionOpenGui.class);
         ConditionHandler.registerHandler(ConditionCraft.class);
         ConditionHandler.registerHandler(ConditionPlayer.class);
 

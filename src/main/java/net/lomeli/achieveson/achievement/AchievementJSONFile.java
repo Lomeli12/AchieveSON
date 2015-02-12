@@ -51,15 +51,19 @@ public class AchievementJSONFile {
             for (AchievementParser subs : achievementParserList) {
                 if (subs != null) {
                     subs.loadAchievement(this);
-                    achievements.add(subs.getAchievement());
-                    jsonList.replace(pageTitle.replace(" ", "-"), this);
+                    if (subs.getAchievement() != null) {
+                        achievements.add(subs.getAchievement());
+                        jsonList.replace(pageTitle.replace(" ", "-"), this);
+                    } else
+                        Logger.logError("Failed to load " + subs.getId());
                 }
             }
             Achievement[] array = new Achievement[achievements.size()];
             for (int i = 0; i < array.length; i++)
                 array[i] = achievements.get(i);
             Logger.logInfo("Creating page for " + pageTitle + " with " + array.length + " achievements.");
-            AchievementPage.registerAchievementPage(new AchievementPage(pageTitle, array));
+            if (pageTitle != null)
+                AchievementPage.registerAchievementPage(new AchievementPage(pageTitle, array));
         }
     }
 
@@ -101,7 +105,6 @@ public class AchievementJSONFile {
                                         sub = new AchievementParser(pageid, id, x, y, type, item, params, subAchievement.get("parentAchievement").getAsString());
                                     else
                                         sub = new AchievementParser(pageid, id, x, y, type, item, params);
-
                                     if (sub != null)
                                         achievementParserList.add(sub);
                                 }

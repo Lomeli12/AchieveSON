@@ -11,6 +11,10 @@ public abstract class ConditionHandler {
      */
     public abstract void registerEvent();
 
+    /**
+     * This is what is what needs to be put in "conditionType" in the json file to use this condition
+     * @return
+     */
     public abstract String conditionID();
 
     /**
