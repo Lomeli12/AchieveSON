@@ -25,6 +25,8 @@ public class AchieveSON {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        Logger.logInfo("Initializing basic packet handler...");
+        PacketHandler.init();
         Logger.logInfo("Registering base condition handlers...");
         ConditionHandler.registerHandler(ConditionItemPickup.class);
         ConditionHandler.registerHandler(ConditionKillEntity.class);
@@ -39,9 +41,6 @@ public class AchieveSON {
             Logger.logWarning("Achievement folder does not exists! Creating...");
             achievementFolder.mkdir();
         }
-
-        Logger.logInfo("Initializing basic packet handler...");
-        PacketHandler.init();
     }
 
     @Mod.EventHandler

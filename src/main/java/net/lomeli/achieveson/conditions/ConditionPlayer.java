@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.Achievement;
@@ -15,14 +16,18 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 
 import net.lomeli.achieveson.api.ConditionHandler;
+import net.lomeli.achieveson.lib.Logger;
 import net.lomeli.achieveson.lib.ParsingUtil;
 
 public class ConditionPlayer extends ConditionHandler {
     private List<AchieveCoords> coordsList;
     private List<ArmorSet> armorList;
+    private List<XPAchievement> xpAchievements;
 
     public ConditionPlayer() {
         coordsList = new ArrayList<AchieveCoords>();
+        armorList = new ArrayList<ArmorSet>();
+        xpAchievements = new ArrayList<XPAchievement>();
     }
 
     @SubscribeEvent
@@ -32,34 +37,44 @@ public class ConditionPlayer extends ConditionHandler {
             if (playerMP != null) {
                 Achievement achievement = null;
                 // Position
-                AchieveCoords achieveCoords = null;
                 if (coordsList != null && !coordsList.isEmpty()) {
+                    AchieveCoords achieveCoords = null;
                     for (AchieveCoords entry : coordsList) {
                         if (entry != null && entry.atLocation(event.player)) {
                             achieveCoords = entry;
                             break;
                         }
                     }
+                    if (achieveCoords != null)
+                        achievement = achieveCoords.getAchievement();
                 }
-                if (achieveCoords != null)
-                    achievement = achieveCoords.getAchievement();
 
                 // Armor
-                ArmorSet set = null;
                 if (armorList != null && !armorList.isEmpty()) {
+                    ArmorSet set = null;
                     for (ArmorSet armor : armorList) {
                         if (armor != null && armor.isWearingSet(playerMP)) {
                             set = armor;
                             break;
                         }
                     }
+                    if (set != null)
+                        achievement = set.getAchievement();
+                }
+                
+                if (xpAchievements != null && !xpAchievements.isEmpty()) {
+                    for (XPAchievement xpAch : xpAchievements) {
+                        if (xpAch != null && xpAch.isAtLevel(playerMP)) {
+                            achievement = xpAch.getAchievement();
+                            break;
+                        }
+                    }
                 }
 
-                if (set != null)
-                    achievement = set.getAchievement();
+                
 
                 if (achievement != null && !playerMP.func_147099_x().hasAchievementUnlocked(achievement) && playerMP.func_147099_x().canUnlockAchievement(achievement))
-                    playerMP.addStat(achieveCoords.getAchievement(), 1);
+                    playerMP.addStat(achievement, 1);
             }
         }
     }
@@ -87,6 +102,15 @@ public class ConditionPlayer extends ConditionHandler {
                     flag = Boolean.parseBoolean(args[5]);
                 armorList.add(new ArmorSet(achievement, flag, gear));
             }
+            if (type.equalsIgnoreCase("xplevel")) {
+                try {
+                    int level = Integer.parseInt(args[1]);
+                    xpAchievements.add(new XPAchievement(achievement, level));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Logger.logError("Failed to parse level!");
+                }
+            }
         }
     }
 
@@ -103,6 +127,23 @@ public class ConditionPlayer extends ConditionHandler {
     @Override
     public boolean isClientSide() {
         return false;
+    }
+    
+    private static class XPAchievement {
+        private int level;
+        private Achievement achievement;
+        public XPAchievement(Achievement achievement, int level) {
+            this.achievement = achievement;
+            this.level = level;
+        }
+        
+        public boolean isAtLevel(EntityPlayer player) {
+            return player != null ? player.experienceLevel == level : false;
+        }
+
+        public Achievement getAchievement() {
+            return achievement;
+        }
     }
 
     private static class AchieveCoords {
@@ -130,7 +171,7 @@ public class ConditionPlayer extends ConditionHandler {
         private Achievement achievement;
         private boolean exact;
 
-        public ArmorSet(Achievement achievement, boolean exact, ItemStack...items) {
+        public ArmorSet(Achievement achievement, boolean exact, ItemStack... items) {
             set = new ItemStack[4];
             for (int i = 0; i < set.length; i++)
                 if (i < items.length) set[i] = items[i];

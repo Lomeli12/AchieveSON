@@ -52,7 +52,7 @@ public class AchievementParser {
             }
         }
         Logger.logInfo("Creating achievement " + id + " for page " + pageID);
-        achievement = (Achievement) new Achievement("achievement." + pageID + "." + id, pageID + "." + id, xPos, yPos, item != null ? item : new ItemStack(Blocks.stone), parentAchievement).registerStat();
+        achievement = new Achievement("achievement." + pageID + "." + id, pageID + "." + id, xPos, yPos, item != null ? item : new ItemStack(Blocks.stone), parentAchievement).registerStat();
         if (achievement != null && type != null && !type.isEmpty()) {
             Logger.logInfo("Assigning achievement " + id + " to condition handler.");
             ConditionHandler condition = ConditionManager.getInstance().getConditionHandler(type);

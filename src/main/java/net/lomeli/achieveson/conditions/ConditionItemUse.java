@@ -20,11 +20,9 @@ public class ConditionItemUse extends ConditionHandler {
         rightClick = new ArrayList<ItemAction>();
     }
 
-
-
     @Override
     public void registerAchievementCondition(Achievement achievement, String... args) {
-        
+
     }
 
     @Override
@@ -46,7 +44,5 @@ public class ConditionItemUse extends ConditionHandler {
     private static class ItemAction {
         private ItemStack item;
         private Achievement achievement;
-
     }
-
 }

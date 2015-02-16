@@ -1,6 +1,5 @@
 package net.lomeli.achieveson.api;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.stats.Achievement;
 
 public interface IConditionManager {
@@ -8,5 +7,5 @@ public interface IConditionManager {
 
     public ConditionHandler getConditionHandler(String id);
 
-    public void sendAchievementPacket(Achievement achievement, EntityPlayer player);
+    public void sendAchievementPacket(Achievement achievement);
 }

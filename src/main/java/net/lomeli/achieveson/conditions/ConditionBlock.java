@@ -15,7 +15,6 @@ import net.minecraftforge.event.world.BlockEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import net.lomeli.achieveson.api.ConditionHandler;
-import net.lomeli.achieveson.lib.Logger;
 import net.lomeli.achieveson.lib.NBTUtil;
 import net.lomeli.achieveson.lib.ParsingUtil;
 
@@ -96,10 +95,10 @@ public class ConditionBlock extends ConditionHandler {
                     count = ParsingUtil.parseInt(ex1.substring(6));
             }
             ItemStack item = ParsingUtil.getStackFromString(itemName, meta);
-            if (item == null) 
+            if (item == null)
                 return;
             Block block = Block.getBlockFromItem(item.getItem());
-            if (block == null) 
+            if (block == null)
                 return;
             if (type.equalsIgnoreCase("place"))
                 placeList.add(new BlockInfo(achievement, block, item.getItemDamage(), count));

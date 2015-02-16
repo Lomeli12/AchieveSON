@@ -7,7 +7,6 @@ import net.minecraft.stats.Achievement;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import net.lomeli.achieveson.api.ConditionHandler;
@@ -24,7 +23,7 @@ public class ConditionOpenGui extends ConditionHandler {
         if (event.gui != null && classList.containsKey(event.gui.getClass().getName())) {
             Achievement achievement = classList.get(event.gui.getClass().getName());
             if (achievement != null)
-                ConditionManager.getInstance().sendAchievementPacket(achievement, FMLClientHandler.instance().getClientPlayerEntity());
+                ConditionManager.getInstance().sendAchievementPacket(achievement);
         }
     }
 

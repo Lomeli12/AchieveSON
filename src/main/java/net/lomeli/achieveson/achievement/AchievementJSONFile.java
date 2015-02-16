@@ -27,13 +27,34 @@ import net.lomeli.achieveson.lib.Logger;
 
 public class AchievementJSONFile {
     public static HashMap<String, AchievementJSONFile> jsonList = new HashMap<String, AchievementJSONFile>();
+    public List<AchievementParser> achievementParserList;
     private File jsonFile;
     private String pageTitle, langZip;
-    public List<AchievementParser> achievementParserList;
 
     public AchievementJSONFile(File file) {
         jsonFile = file;
         achievementParserList = new ArrayList<AchievementParser>();
+    }
+
+    public static void injectLanguage(File source, Side side) {
+        try {
+            ZipFile zf = new ZipFile(source);
+            for (ZipEntry ze : Collections.list(zf.entries())) {
+                Matcher matcher = Pattern.compile("(?:.+/|)([\\w_-]+).lang").matcher(ze.getName());
+                if (matcher.matches()) {
+                    String lang = matcher.group(1);
+                    FMLLog.fine("Injecting found translation data for lang %s in zip file %s at %s into language system", lang, source.getName(), ze.getName());
+                    LanguageRegistry.instance().injectLanguage(lang, StringTranslate.parseLangFile(zf.getInputStream(ze)));
+                    // Ensure en_US is available to StringTranslate on the server
+                    if ("en_US".equals(lang) && side == Side.SERVER)
+                        StringTranslate.inject(zf.getInputStream(ze));
+                }
+            }
+            zf.close();
+        } catch (Exception e) {
+            Logger.logError("Could not inject language file!");
+            e.printStackTrace();
+        }
     }
 
     public void loadAchievements() {
@@ -120,26 +141,5 @@ public class AchievementJSONFile {
         }
         Logger.logWarning("Null JSON file, ignoring...");
         return false;
-    }
-
-    public static void injectLanguage(File source, Side side) {
-        try {
-            ZipFile zf = new ZipFile(source);
-            for (ZipEntry ze : Collections.list(zf.entries())) {
-                Matcher matcher = Pattern.compile("(?:.+/|)([\\w_-]+).lang").matcher(ze.getName());
-                if (matcher.matches()) {
-                    String lang = matcher.group(1);
-                    FMLLog.fine("Injecting found translation data for lang %s in zip file %s at %s into language system", lang, source.getName(), ze.getName());
-                    LanguageRegistry.instance().injectLanguage(lang, StringTranslate.parseLangFile(zf.getInputStream(ze)));
-                    // Ensure en_US is available to StringTranslate on the server
-                    if ("en_US".equals(lang) && side == Side.SERVER)
-                        StringTranslate.inject(zf.getInputStream(ze));
-                }
-            }
-            zf.close();
-        } catch (Exception e) {
-            Logger.logError("Could not inject language file!");
-            e.printStackTrace();
-        }
     }
 }

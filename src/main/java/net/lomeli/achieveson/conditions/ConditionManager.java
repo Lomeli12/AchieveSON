@@ -2,7 +2,6 @@ package net.lomeli.achieveson.conditions;
 
 import java.util.HashMap;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.stats.Achievement;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -32,7 +31,7 @@ public class ConditionManager implements IConditionManager {
         try {
             Logger.logInfo("Registering " + clazz.getName() + " as condition handler...");
             ConditionHandler conditionHandler = clazz.newInstance();
-            
+
             if (conditionHandler.isClientSide()) {
                 if (FMLCommonHandler.instance().getEffectiveSide().isClient())
                     conditionHandler.registerEvent();
@@ -51,7 +50,7 @@ public class ConditionManager implements IConditionManager {
     }
 
     @Override
-    public void sendAchievementPacket(Achievement achievement, EntityPlayer player) {
-        PacketHandler.INSTANCE.sendToServer(new MessageUnlockAchievement(achievement, player));
+    public void sendAchievementPacket(Achievement achievement) {
+        PacketHandler.INSTANCE.sendToServer(new MessageUnlockAchievement(achievement));
     }
 }
