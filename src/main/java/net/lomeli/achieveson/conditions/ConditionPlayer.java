@@ -158,7 +158,7 @@ public class ConditionPlayer extends ConditionHandler {
         }
 
         public boolean atLocation(Entity entity) {
-            return entity != null ? (MathHelper.floor_double(entity.posX) == this.x && MathHelper.floor_double(entity.getBoundingBox().minY) == this.y && MathHelper.floor_double(entity.posZ) == this.z) : false;
+            return entity != null ? (MathHelper.floor_double(entity.posX) == this.x && MathHelper.floor_double(entity.boundingBox.minY) == this.y && MathHelper.floor_double(entity.posZ) == this.z) : false;
         }
 
         public Achievement getAchievement() {

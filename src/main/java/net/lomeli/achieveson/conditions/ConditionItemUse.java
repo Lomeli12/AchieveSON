@@ -12,6 +12,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 
 import net.lomeli.achieveson.api.ConditionHandler;
 
+//TODO FINISH THIS!!!!
 public class ConditionItemUse extends ConditionHandler {
     private List<ItemAction> leftClick, rightClick;
 
