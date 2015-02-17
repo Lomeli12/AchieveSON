@@ -16,7 +16,6 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 
 import net.lomeli.achieveson.api.ConditionHandler;
-import net.lomeli.achieveson.lib.Logger;
 import net.lomeli.achieveson.lib.ParsingUtil;
 
 public class ConditionPlayer extends ConditionHandler {
@@ -32,56 +31,57 @@ public class ConditionPlayer extends ConditionHandler {
 
     @SubscribeEvent
     public void playerTick(TickEvent.PlayerTickEvent event) {
-        if (event.player != null && !event.player.worldObj.isRemote) {
-            EntityPlayerMP playerMP = (EntityPlayerMP) event.player;
-            if (playerMP != null) {
-                Achievement achievement = null;
-                // Position
-                if (coordsList != null && !coordsList.isEmpty()) {
-                    AchieveCoords achieveCoords = null;
-                    for (AchieveCoords entry : coordsList) {
-                        if (entry != null && entry.atLocation(event.player)) {
-                            achieveCoords = entry;
-                            break;
-                        }
-                    }
-                    if (achieveCoords != null)
-                        achievement = achieveCoords.getAchievement();
-                }
-
-                // Armor
-                if (armorList != null && !armorList.isEmpty()) {
-                    ArmorSet set = null;
-                    for (ArmorSet armor : armorList) {
-                        if (armor != null && armor.isWearingSet(playerMP)) {
-                            set = armor;
-                            break;
-                        }
-                    }
-                    if (set != null)
-                        achievement = set.getAchievement();
-                }
-                
-                if (xpAchievements != null && !xpAchievements.isEmpty()) {
-                    for (XPAchievement xpAch : xpAchievements) {
-                        if (xpAch != null && xpAch.isAtLevel(playerMP)) {
-                            achievement = xpAch.getAchievement();
-                            break;
-                        }
+        if (event.player != null) {
+            EntityPlayer player = event.player;
+            Achievement achievement = null;
+            // Position
+            if (coordsList != null && !coordsList.isEmpty()) {
+                AchieveCoords achieveCoords = null;
+                for (AchieveCoords entry : coordsList) {
+                    if (entry != null && entry.atLocation(event.player)) {
+                        achieveCoords = entry;
+                        break;
                     }
                 }
+                if (achieveCoords != null)
+                    achievement = achieveCoords.getAchievement();
+            }
 
-                
+            // Armor
+            if (armorList != null && !armorList.isEmpty()) {
+                ArmorSet set = null;
+                for (ArmorSet armor : armorList) {
+                    if (armor != null && armor.isWearingSet(player)) {
+                        set = armor;
+                        break;
+                    }
+                }
+                if (set != null)
+                    achievement = set.getAchievement();
+            }
 
-                if (achievement != null && !playerMP.func_147099_x().hasAchievementUnlocked(achievement) && playerMP.func_147099_x().canUnlockAchievement(achievement))
-                    playerMP.addStat(achievement, 1);
+            if (xpAchievements != null && !xpAchievements.isEmpty()) {
+                for (XPAchievement xpAch : xpAchievements) {
+                    if (xpAch != null && xpAch.isAtLevel(player)) {
+                        achievement = xpAch.getAchievement();
+                        break;
+                    }
+                }
+            }
+
+            if (achievement != null && FMLCommonHandler.instance().getMinecraftServerInstance() != null) {
+                EntityPlayerMP playerMP = (EntityPlayerMP) FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension).func_152378_a(player.getUniqueID());
+                if (playerMP != null) {
+                    if (!playerMP.func_147099_x().hasAchievementUnlocked(achievement) && playerMP.func_147099_x().canUnlockAchievement(achievement))
+                        playerMP.addStat(achievement, 1);
+                }
             }
         }
     }
 
     @Override
     public void registerAchievementCondition(Achievement achievement, String... args) {
-        if (achievement != null && args != null && (args.length > 2)) {
+        if (achievement != null && args != null && args.length >= 2) {
             String type = args[0];
             if (type.equalsIgnoreCase("pos")) {
                 if (args.length == 4) {
@@ -103,13 +103,8 @@ public class ConditionPlayer extends ConditionHandler {
                 armorList.add(new ArmorSet(achievement, flag, gear));
             }
             if (type.equalsIgnoreCase("xplevel")) {
-                try {
-                    int level = Integer.parseInt(args[1]);
-                    xpAchievements.add(new XPAchievement(achievement, level));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Logger.logError("Failed to parse level!");
-                }
+                int level = ParsingUtil.parseInt(args[1]);
+                xpAchievements.add(new XPAchievement(achievement, level));
             }
         }
     }
@@ -128,17 +123,18 @@ public class ConditionPlayer extends ConditionHandler {
     public boolean isClientSide() {
         return false;
     }
-    
+
     private static class XPAchievement {
         private int level;
         private Achievement achievement;
+
         public XPAchievement(Achievement achievement, int level) {
             this.achievement = achievement;
             this.level = level;
         }
-        
+
         public boolean isAtLevel(EntityPlayer player) {
-            return player != null ? player.experienceLevel == level : false;
+            return player != null ? player.experienceLevel >= level : false;
         }
 
         public Achievement getAchievement() {

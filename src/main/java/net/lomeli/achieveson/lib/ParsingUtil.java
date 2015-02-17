@@ -8,31 +8,29 @@ import net.minecraft.stats.AchievementList;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public class ParsingUtil {
-    public static Item getItemFromString(String s) {
-        if (s != null && !s.isEmpty()) {
-            String[] array = s.split(":");
-            if (array != null && array.length >= 2)
-                return GameRegistry.findItem(array[0], array[1]);
-        }
-        return null;
-    }
 
     public static ItemStack getStackFromString(String s) {
         String[] array_1 = s.split(" ");
         if (array_1 != null && (array_1.length == 1 || array_1.length == 2)) {
             String itemString = array_1[0];
             String[] array_2 = itemString.split(":");
-            if (array_1.length == 2)
-                return getStackFromString(itemString, parseInt(array_1[1]));
-            if (array_2 != null && (array_2.length == 2 || array_2.length == 3))
-                return array_2.length == 3 ? getStackFromString(itemString, parseInt(array_2[2])) : getStackFromString(itemString, 0);
+            if (array_2.length == 2) {
+                String modID = array_2[0];
+                String itemName = array_2[1];
+                int meta = 0;
+                Item item = GameRegistry.findItem(modID, itemName);
+                if (array_1.length == 2 && array_1[1].startsWith("meta="))
+                    meta = parseInt(array_1[1].substring(5));
+                return new ItemStack(item, 1, meta);
+            }
         }
         return null;
     }
-
-    public static ItemStack getStackFromString(String s, int i) {
-        Item item = getItemFromString(s);
-        return item != null ? new ItemStack(item, 1, i) : null;
+    
+    public static int getCountFromString(String s) {
+        if (s != null && s.startsWith("count="))
+            return parseInt(s.substring(6));
+        return 1;
     }
 
     public static Achievement getAchievement(String s) {
@@ -44,8 +42,8 @@ public class ParsingUtil {
         return null;
     }
 
-    public static boolean doStacksMatch(ItemStack a, ItemStack b) {
-        return a != null && b != null && a.getItem() != null && b.getItem() != null && ((a.getItem() == b.getItem()) && (a.getItemDamage() == b.getItemDamage()));
+    public static boolean doStacksMatch(ItemStack targetStack, ItemStack stack) {
+        return targetStack != null && stack != null && targetStack.getItem() != null && stack.getItem() != null && ((targetStack.getItem() == stack.getItem()) && (targetStack.getItemDamage() == Short.MAX_VALUE || targetStack.getItemDamage() == stack.getItemDamage()));
     }
 
     public static int parseInt(String s) {

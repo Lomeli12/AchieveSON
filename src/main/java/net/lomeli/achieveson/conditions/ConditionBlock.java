@@ -83,19 +83,18 @@ public class ConditionBlock extends ConditionHandler {
         if (achievement != null && args != null && (args.length >= 2 && args.length <= 4)) {
             String type = args[0];
             String itemName = args[1];
-            int meta = 0, count = 1;
-            if (args.length > 2) {
-                String ex0 = args[2];
-                String ex1 = args.length == 4 ? args[3] : null;
-                if (ex0.startsWith("count="))
-                    count = ParsingUtil.parseInt(ex0.substring(6));
-                else
-                    meta = ParsingUtil.parseInt(ex0);
-                if (ex1 != null && ex1.startsWith("count="))
-                    count = ParsingUtil.parseInt(ex1.substring(6));
+            int count = 1;
+            if (args.length >= 3) {
+                if (args[2].startsWith("meta="))
+                    itemName += " " + args[2];
+                if (args[2].startsWith("count="))
+                    count = ParsingUtil.getCountFromString(args[2]);
+                if (args.length == 4 && args[3].startsWith("count="))
+                    count = ParsingUtil.getCountFromString(args[3]);
             }
-            ItemStack item = ParsingUtil.getStackFromString(itemName, meta);
-            if (item == null)
+            ItemStack item = ParsingUtil.getStackFromString(itemName);
+            item.stackSize = count;
+            if (item == null && item.getItem() != null)
                 return;
             Block block = Block.getBlockFromItem(item.getItem());
             if (block == null)

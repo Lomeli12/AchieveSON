@@ -19,7 +19,7 @@ import net.lomeli.achieveson.network.PacketHandler;
 public class AchieveSON {
     public static final String MOD_ID = "achieveson";
     public static final String MOD_NAME = "AchieveSON";
-    public static final String VERSION = "1.0.1";
+    public static final String VERSION = "1.1.0";
 
     public static File achievementFolder;
 
@@ -35,6 +35,7 @@ public class AchieveSON {
             ConditionHandler.registerHandler(ConditionOpenGui.class);
         ConditionHandler.registerHandler(ConditionCraft.class);
         ConditionHandler.registerHandler(ConditionPlayer.class);
+        ConditionHandler.registerHandler(ConditionItemUse.class);
 
         achievementFolder = new File(event.getModConfigurationDirectory(), "achievements");
         if (!achievementFolder.exists()) {

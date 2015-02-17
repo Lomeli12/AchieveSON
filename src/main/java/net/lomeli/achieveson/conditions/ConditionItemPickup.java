@@ -38,7 +38,7 @@ public class ConditionItemPickup extends ConditionHandler {
             ItemStack baseItem = null;
             if (registeredAchievements != null && !registeredAchievements.isEmpty()) {
                 for (Map.Entry<ItemStack, Achievement> entry : registeredAchievements.entrySet()) {
-                    if (entry != null && ParsingUtil.doStacksMatch(stack, entry.getKey())) {
+                    if (entry != null && ParsingUtil.doStacksMatch(entry.getKey(), stack)) {
                         achievement = entry.getValue();
                         baseItem = entry.getKey();
                         break;
@@ -64,8 +64,20 @@ public class ConditionItemPickup extends ConditionHandler {
     @Override
     public void registerAchievementCondition(Achievement achievement, String... args) {
         if (achievement != null && args != null && (args.length == 1 || args.length == 2 || args.length == 3)) {
-            String name = args[0];
-            ItemStack stack = (args.length >= 2 && !args[1].startsWith("count=")) ? ParsingUtil.getStackFromString(name, ParsingUtil.parseInt(args[1])) : ParsingUtil.getStackFromString(name);
+            String itemName = args[0];
+            int count = 1;
+            if (args.length >= 2) {
+                if (args[1].startsWith("meta="))
+                    itemName += " " + args[1];
+                if (args[1].startsWith("count="))
+                    count = ParsingUtil.getCountFromString(args[1]);
+                if (args.length == 3 && args[2].startsWith("count="))
+                    count = ParsingUtil.getCountFromString(args[2]);
+            }
+            ItemStack stack = ParsingUtil.getStackFromString(itemName);
+            stack.stackSize = count;
+            if (stack == null && stack.getItem() != null)
+                return;
             if (stack != null && args.length == 2 && args[1].startsWith("count="))
                 stack.stackSize = ParsingUtil.parseInt(args[1].substring(6));
             if (stack != null && args.length == 3 && args[2].startsWith("count="))
