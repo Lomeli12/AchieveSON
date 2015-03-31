@@ -1,7 +1,5 @@
 package net.lomeli.achieveson;
 
-import org.apache.commons.io.FilenameUtils;
-
 import java.io.File;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -9,7 +7,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-import net.lomeli.achieveson.achievement.AchievementJSONFile;
+import net.lomeli.achieveson.achievement.AchievementHandler;
 import net.lomeli.achieveson.api.ConditionHandler;
 import net.lomeli.achieveson.conditions.*;
 import net.lomeli.achieveson.lib.Logger;
@@ -48,14 +46,7 @@ public class AchieveSON {
     public void init(FMLInitializationEvent event) {
         if (achievementFolder.isDirectory()) {
             Logger.logInfo("Reading json files...");
-            File[] files = achievementFolder.listFiles();
-            for (File file : files) {
-                if (FilenameUtils.getExtension(file.getAbsolutePath()).equalsIgnoreCase("json")) {
-                    Logger.logInfo("Parsing " + file.getName() + " for achievements...");
-                    new AchievementJSONFile(file).loadAchievements();
-                    Logger.logInfo("-------------------------------------");
-                }
-            }
+            AchievementHandler.loadAchievements();
         }
     }
 }

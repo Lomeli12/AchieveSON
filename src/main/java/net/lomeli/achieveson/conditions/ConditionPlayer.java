@@ -9,7 +9,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.Achievement;
-import net.minecraft.util.MathHelper;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -33,18 +32,23 @@ public class ConditionPlayer extends ConditionHandler {
     public void playerTick(TickEvent.PlayerTickEvent event) {
         if (event.player != null) {
             EntityPlayer player = event.player;
-            Achievement achievement = null;
             // Position
             if (coordsList != null && !coordsList.isEmpty()) {
                 AchieveCoords achieveCoords = null;
                 for (AchieveCoords entry : coordsList) {
-                    if (entry != null && entry.atLocation(event.player)) {
-                        achieveCoords = entry;
-                        break;
+                    if (entry != null) {
+                        boolean flag1, flag2, flag3;
+                        flag1 = Math.floor(player.posX) == entry.x;
+                        flag2 = Math.floor(player.boundingBox.minY) == entry.y;
+                        flag3 = Math.floor(player.posZ) == entry.z;
+                        if (flag1 && flag2 && flag3) {
+                            achieveCoords = entry;
+                            break;
+                        }
                     }
                 }
                 if (achieveCoords != null)
-                    achievement = achieveCoords.getAchievement();
+                    unlockAchievement(achieveCoords.getAchievement(), player);
             }
 
             // Armor
@@ -57,24 +61,26 @@ public class ConditionPlayer extends ConditionHandler {
                     }
                 }
                 if (set != null)
-                    achievement = set.getAchievement();
+                    unlockAchievement(set.getAchievement(), player);
             }
 
             if (xpAchievements != null && !xpAchievements.isEmpty()) {
                 for (XPAchievement xpAch : xpAchievements) {
                     if (xpAch != null && xpAch.isAtLevel(player)) {
-                        achievement = xpAch.getAchievement();
+                        unlockAchievement(xpAch.getAchievement(), player);
                         break;
                     }
                 }
             }
+        }
+    }
 
-            if (achievement != null && FMLCommonHandler.instance().getMinecraftServerInstance() != null) {
-                EntityPlayerMP playerMP = (EntityPlayerMP) FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension).func_152378_a(player.getUniqueID());
-                if (playerMP != null) {
-                    if (!playerMP.func_147099_x().hasAchievementUnlocked(achievement) && playerMP.func_147099_x().canUnlockAchievement(achievement))
-                        playerMP.addStat(achievement, 1);
-                }
+    private void unlockAchievement(Achievement achievement, EntityPlayer player) {
+        if (achievement != null && FMLCommonHandler.instance().getMinecraftServerInstance() != null) {
+            EntityPlayerMP playerMP = (EntityPlayerMP) FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension).func_152378_a(player.getUniqueID());
+            if (playerMP != null) {
+                if (!playerMP.func_147099_x().hasAchievementUnlocked(achievement) && playerMP.func_147099_x().canUnlockAchievement(achievement))
+                    playerMP.addStat(achievement, 1);
             }
         }
     }
@@ -94,12 +100,15 @@ public class ConditionPlayer extends ConditionHandler {
             if (type.equalsIgnoreCase("wear") || type.equalsIgnoreCase("armor")) {
                 ItemStack[] gear = new ItemStack[4];
                 boolean flag = true;
-                for (int i = 0; i < gear.length; i++) {
-                    if (i + 1 < args.length)
-                        gear[i] = ParsingUtil.getStackFromString(args[i + 1]);
+                int k = 1;
+                if (args.length == 2 && (args[1].equals("false") || args[1].equals("true"))) {
+                    flag = Boolean.parseBoolean(args[1]);
+                    k = 2;
                 }
-                if (args.length == 6)
-                    flag = Boolean.parseBoolean(args[5]);
+                for (int i = 0; i < gear.length; i++) {
+                    if (i + k < args.length)
+                        gear[i] = ParsingUtil.getStackFromString(args[i + k]);
+                }
                 armorList.add(new ArmorSet(achievement, flag, gear));
             }
             if (type.equalsIgnoreCase("xplevel")) {
@@ -154,7 +163,7 @@ public class ConditionPlayer extends ConditionHandler {
         }
 
         public boolean atLocation(Entity entity) {
-            return entity != null ? (MathHelper.floor_double(entity.posX) == this.x && MathHelper.floor_double(entity.boundingBox.minY) == this.y && MathHelper.floor_double(entity.posZ) == this.z) : false;
+            return (((int) Math.floor(entity.posX)) == this.x && ((int) Math.floor(entity.boundingBox.minY)) == this.y && ((int) Math.floor(entity.posZ) == this.z));
         }
 
         public Achievement getAchievement() {
@@ -176,13 +185,18 @@ public class ConditionPlayer extends ConditionHandler {
         }
 
         public boolean isWearingSet(EntityLivingBase entity) {
+            //TODO FIX THIS SHIT!
             int i = 0;
             for (int k = 0; k < set.length; k++) {
                 ItemStack setItem = set[k];
                 ItemStack entityItem = entity.getEquipmentInSlot(k + 1);
+                if (entityItem != null)
+                    System.out.println(entityItem.getDisplayName() + " " + (k + 1));
                 if (setItem == null || setItem.getItem() == null) {
-                    if (exact && (entityItem == null || entityItem.getItem() == null)) i++;
-                    else if (!exact) i++;
+                    if (exact && (entityItem == null || entityItem.getItem() == null))
+                        i++;
+                    else if (!exact)
+                        i++;
                 } else if (entityItem != null && entityItem.getItem() != null) {
                     if (entityItem.getItem() == setItem.getItem())
                         i++;
