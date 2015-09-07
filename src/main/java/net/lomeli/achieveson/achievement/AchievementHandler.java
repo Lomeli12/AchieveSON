@@ -36,21 +36,24 @@ public class AchievementHandler {
     public static void loadAchievements() {
         Gson gson = new Gson();
         File[] files = AchieveSON.achievementFolder.listFiles();
-        for (File file : files) {
-            if (FilenameUtils.getExtension(file.getAbsolutePath()).equalsIgnoreCase("json")) {
-                try {
-                    Logger.logInfo("Parsing " + file.getName() + " for achievements...");
-                    FileReader reader = new FileReader(file);
-                    AchievementFile achievementFile = gson.fromJson(reader, AchievementFile.class);
-                    if (achievementFile != null)
-                        createPage(file, achievementFile);
-                    Logger.logInfo("-------------------------------------");
-                } catch (Exception e) {
-                    // Probably the user's fault, so I don't fucking care.
-                    e.printStackTrace();
+        if (files != null && files.length > 0) {
+            for (File file : files) {
+                if (FilenameUtils.getExtension(file.getAbsolutePath()).equalsIgnoreCase("json")) {
+                    try {
+                        Logger.logInfo("Parsing " + file.getName() + " for achievements...");
+                        FileReader reader = new FileReader(file);
+                        AchievementFile achievementFile = gson.fromJson(reader, AchievementFile.class);
+                        if (achievementFile != null)
+                            createPage(file, achievementFile);
+                        Logger.logInfo("-------------------------------------");
+                    } catch (Exception e) {
+                        // Probably the user's fault, so I don't fucking care.
+                        e.printStackTrace();
+                    }
                 }
             }
-        }
+        } else
+            Logger.logError("No achievement files found. Well this is kinda pointless...");
     }
 
     public static void createPage(File file, AchievementFile achievementFile) {
@@ -62,7 +65,8 @@ public class AchievementHandler {
                 injectLanguage(langFile, FMLCommonHandler.instance().getEffectiveSide());
             } else
                 Logger.logWarning("Could not find language zip!");
-        }
+        } else
+            Logger.logError("No default lang zip found.");
         String pageId = achievementFile.getPageTitle().replace(" ", "-");
         List<Achievement> achievements = new ArrayList<Achievement>();
         for (AchievementInfo info : achievementFile.getAchievementInfo()) {
@@ -78,12 +82,12 @@ public class AchievementHandler {
     }
 
     public static Achievement createAchievement(List<Achievement> list, AchievementInfo info, String pageID) {
-        Achievement achievement = null;
+        Achievement achievement;
         Achievement parentAchievement = null;
         if (info.getParentAchievement() != null && !info.getParentAchievement().isEmpty()) {
             for (Achievement achieve : list) {
                 if (achieve.statId.equals("achievement." + pageID + "." + info.getParentAchievement())) {
-                    Logger.logInfo("Adding " + achieve.statId + " as parent for " + info.getName());
+                    Logger.logInfo("Adding " + achieve.statId + " as parent for " + info.getID());
                     parentAchievement = achieve;
                     break;
                 }
@@ -92,10 +96,10 @@ public class AchievementHandler {
         int xPos = info.getxPos();
         int yPos = info.getyPos();
         ItemStack item = ParsingUtil.getStackFromString(info.getItemIcon());
-        Logger.logInfo("Creating achievement " + info.getName() + " for page " + pageID);
-        achievement = new Achievement("achievement." + pageID + "." + info.getName(), pageID + "." + info.getName(), xPos, yPos, item != null ? item : new ItemStack(Blocks.stone), parentAchievement).registerStat();
+        Logger.logInfo("Creating achievement " + info.getID() + " for page " + pageID);
+        achievement = new Achievement("achievement." + pageID + "." + info.getID(), pageID + "." + info.getID(), xPos, yPos, item != null ? item : new ItemStack(Blocks.stone), parentAchievement).registerStat();
         if (achievement != null && info.getConditionType() != null && !info.getConditionType().isEmpty()) {
-            Logger.logInfo("Assigning achievement " + info.getName() + " to condition handler " + info.getConditionType() + ".");
+            Logger.logInfo("Assigning achievement " + info.getID() + " to condition handler " + info.getConditionType() + ".");
             ConditionHandler condition = ConditionManager.getInstance().getConditionHandler(info.getConditionType());
             if (condition != null)
                 condition.registerAchievementCondition(achievement, info.getParams().split(" "));

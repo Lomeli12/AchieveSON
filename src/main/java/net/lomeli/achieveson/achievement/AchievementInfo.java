@@ -1,7 +1,7 @@
 package net.lomeli.achieveson.achievement;
 
 public class AchievementInfo {
-    private String name;
+    private String id;
     private String conditionType;
     private String params;
     private String itemIcon;
@@ -9,8 +9,8 @@ public class AchievementInfo {
     private int yPos;
     private String parentAchievement;
 
-    public AchievementInfo(String name, String conditionType, String params, String itemIcon, int x, int y, String parent) {
-        this.name = name;
+    public AchievementInfo(String id, String conditionType, String params, String itemIcon, int x, int y, String parent) {
+        this.id = id;
         this.conditionType = conditionType;
         this.params = params;
         this.itemIcon = itemIcon;
@@ -19,12 +19,12 @@ public class AchievementInfo {
         this.parentAchievement = parent;
     }
 
-    public AchievementInfo(String name, String conditionType, String params, String itemIcon, int x, int y) {
-        this(name, conditionType, params, itemIcon, x, y, null);
+    public AchievementInfo(String id, String conditionType, String params, String itemIcon, int x, int y) {
+        this(id, conditionType, params, itemIcon, x, y, null);
     }
 
-    public String getName() {
-        return name;
+    public String getID() {
+        return id;
     }
 
     public String getConditionType() {

@@ -12,6 +12,7 @@ public abstract class ConditionHandler {
                 Class cl = Class.forName("net.lomeli.achieveson.conditions.ConditionManager");
                 conditionManager = (IConditionManager) cl.getMethod("getInstance").invoke(null);
             } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return conditionManager;
