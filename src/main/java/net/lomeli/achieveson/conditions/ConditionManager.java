@@ -20,12 +20,6 @@ public class ConditionManager implements IConditionManager {
         registeredConditions = new HashMap<String, ConditionHandler>();
     }
 
-    public static ConditionManager getInstance() {
-        if (instance == null)
-            instance = new ConditionManager();
-        return instance;
-    }
-
     @Override
     public void registerAchievements(Class<? extends ConditionHandler> clazz) {
         try {
@@ -52,5 +46,11 @@ public class ConditionManager implements IConditionManager {
     @Override
     public void sendAchievementPacket(Achievement achievement) {
         PacketHandler.INSTANCE.sendToServer(new MessageUnlockAchievement(achievement));
+    }
+
+    public static ConditionManager getInstance() {
+        if (instance == null)
+            instance = new ConditionManager();
+        return instance;
     }
 }

@@ -26,7 +26,7 @@ public class ParsingUtil {
         }
         return null;
     }
-    
+
     public static int getCountFromString(String s) {
         if (s != null && s.startsWith("count="))
             return parseInt(s.substring(6));

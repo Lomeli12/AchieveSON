@@ -6,10 +6,6 @@ public abstract class ConditionHandler {
 
     public static IConditionManager conditionManager;
 
-    public static final void registerHandler(Class<? extends ConditionHandler> clazz) {
-        conditionManager.registerAchievements(clazz);
-    }
-
     public abstract void registerAchievementCondition(Achievement achievement, String... args);
 
     /**
@@ -28,4 +24,8 @@ public abstract class ConditionHandler {
      * Set to true if you're using a client side event. Use {@link net.lomeli.achieveson.api.IConditionManager#sendAchievementPacket} to give the player their achievement.
      */
     public abstract boolean isClientSide();
+
+    public static final void registerHandler(Class<? extends ConditionHandler> clazz) {
+        conditionManager.registerAchievements(clazz);
+    }
 }
