@@ -26,6 +26,7 @@ public class AchieveSON {
         Logger.logInfo("Initializing basic packet handler...");
         PacketHandler.init();
         Logger.logInfo("Registering base condition handlers...");
+        ConditionHandler.conditionManager = new ConditionManager();
         ConditionHandler.registerHandler(ConditionItemPickup.class);
         ConditionHandler.registerHandler(ConditionKillEntity.class);
         ConditionHandler.registerHandler(ConditionBlock.class);

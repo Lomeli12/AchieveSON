@@ -4,22 +4,10 @@ import net.minecraft.stats.Achievement;
 
 public abstract class ConditionHandler {
 
-    private static IConditionManager conditionManager;
-
-    public static IConditionManager getConditionManager() {
-        if (conditionManager == null) {
-            try {
-                Class cl = Class.forName("net.lomeli.achieveson.conditions.ConditionManager");
-                conditionManager = (IConditionManager) cl.getMethod("getInstance").invoke(null);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return conditionManager;
-    }
+    public static IConditionManager conditionManager;
 
     public static final void registerHandler(Class<? extends ConditionHandler> clazz) {
-        getConditionManager().registerAchievements(clazz);
+        conditionManager.registerAchievements(clazz);
     }
 
     public abstract void registerAchievementCondition(Achievement achievement, String... args);
