@@ -13,10 +13,10 @@ import net.lomeli.achieveson.network.MessageUnlockAchievement;
 import net.lomeli.achieveson.network.PacketHandler;
 
 public class ConditionManager implements IConditionManager {
-    public static ConditionManager instance;
+    private static ConditionManager instance;
     private HashMap<String, ConditionHandler> registeredConditions;
 
-    public ConditionManager() {
+    private ConditionManager() {
         registeredConditions = new HashMap<String, ConditionHandler>();
     }
 
